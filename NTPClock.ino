@@ -7,22 +7,15 @@
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 
-
 // Replace with your network credentials
 char* ssid     = "Enter ssid here";
 char* password = "Enter password here";
 
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP);
+NTPClient timeClient(ntpUDP); 
 
-/*
- Now we need a LedControl to work with.
- ***** These pin numbers will probably not work with your hardware *****
- pin 12 is connected to the DataIn 
- pin 11 is connected to the CLK 
- pin 10 is connected to LOAD  
- */
+// Setup led control library
 int displays=4;
 LedControl lc = LedControl(SCK,MISO,MOSI,displays);
 
@@ -76,12 +69,14 @@ byte* oldSprite5 = blank;
 byte* oldSprite6 = blank;
 byte* oldSprite7 = blank;
 
+// wake up displays and clear them
 void prepareDisplay(int i) {
   lc.shutdown(i,false);
   lc.setIntensity(i,8);
   lc.clearDisplay(i);    
 }
 
+// show while connecting to wifi
 void connectWifi() {
   drawWifi();
 
@@ -92,6 +87,7 @@ void connectWifi() {
   }
 }
 
+//show while connecting to NTP server
 void connectTime() {
   drawTime();
     
@@ -102,6 +98,7 @@ void connectTime() {
   timeClient.setUpdateInterval(3600 * 1000); //update every hour
 }
 
+// general setup
 void setup() {
   pinMode(onboardLedPin, OUTPUT);
 
@@ -114,6 +111,7 @@ void setup() {
   connectTime();
 }
 
+// show time
 void drawTime() {
   sprite0 = blank;
   sprite1 = le;
@@ -127,6 +125,7 @@ void drawTime() {
   displayClock();  
 }
 
+// show wifi
 void drawWifi() {
   sprite0 = blank;
   sprite1 = li;
@@ -140,6 +139,7 @@ void drawWifi() {
   displayClock();
 }
 
+// toggle exclamation mark
 void drawExclamation() {
 
     if (sprite0 == exclamation) {
@@ -153,10 +153,12 @@ void drawExclamation() {
     displayClock();  
 }
 
+// flash onboard led
 void blinkOnboardLed(int value) {
     digitalWrite(onboardLedPin, value);
 }
 
+// main loop
 void loop() {
 
   while(!timeClient.update()) {
@@ -182,14 +184,17 @@ void loop() {
   delay(200);
 }
 
+// get the tens of timeunit
 int getTens(int timeUnit) {
   return timeUnit / 10;
 }
 
+// get the ones of timeunit
 int getOnes(int timeUnit) {
   return timeUnit % 10;
 }
 
+// display the sprites that have been setup
 void displayClock() {
 
   byte* sprites[8] = {sprite0, sprite1, sprite2, sprite3, sprite4, sprite5, sprite6, sprite7};
