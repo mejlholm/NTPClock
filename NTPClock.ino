@@ -4,16 +4,11 @@
 
 #include "LedControl.h"
 #include <WiFi.h>
-#include <NTPClient.h>
-#include <WiFiUdp.h>
+#include <ezTime.h>
 
 // Replace with your network credentials
-char* ssid     = "Enter ssid here";
-char* password = "Enter password here";
-
-// Define NTP Client to get time
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP); 
+char* ssid     = "";
+char* password = "";
 
 // Setup led control library
 int displays=4;
@@ -21,6 +16,10 @@ LedControl lc = LedControl(SCK,MISO,MOSI,displays);
 
 const int pixels=8;
 const int onboardLedPin=2;
+
+// Setup timezone
+Timezone myTZ;
+
 
 /* sprites */
 byte n                     = B00000000; //nothing
@@ -72,7 +71,7 @@ byte* oldSprite7 = blank;
 // wake up displays and clear them
 void prepareDisplay(int i) {
   lc.shutdown(i,false);
-  lc.setIntensity(i,8);
+  lc.setIntensity(i,0);
   lc.clearDisplay(i);    
 }
 
@@ -90,16 +89,16 @@ void connectWifi() {
 //show while connecting to NTP server
 void connectTime() {
   drawTime();
-    
-  // Initialize a NTPClient to get time
-  timeClient.begin();
-  // Set offset time in seconds to adjust for your timezone, for example:
-  timeClient.setTimeOffset(1*3600);
-  timeClient.setUpdateInterval(3600 * 1000); //update every hour
+
+  myTZ.setLocation("Europe/Copenhagen");
+  setInterval(60);
+
+  waitForSync();
+
 }
 
 // general setup
-void setup() {
+void setup() {   
   pinMode(onboardLedPin, OUTPUT);
 
   delay(2000);
@@ -161,23 +160,17 @@ void blinkOnboardLed(int value) {
 // main loop
 void loop() {
 
-  while(!timeClient.update()) {
-    drawExclamation();
-    timeClient.forceUpdate();
-  }
+  tmElements_t tm;
+  breakTime(myTZ.now(), tm);
 
-  int seconds = timeClient.getSeconds();
-  int minutes = timeClient.getMinutes();
-  int hours = timeClient.getHours();
-
-  sprite0 = convTable[getOnes(seconds)];
-  sprite1 = convTable[getTens(seconds)];
+  sprite0 = convTable[getOnes(tm.Second)];
+  sprite1 = convTable[getTens(tm.Second)];
   sprite2 = colon;
-  sprite3 = convTable[getOnes(minutes)];
-  sprite4 = convTable[getTens(minutes)];
+  sprite3 = convTable[getOnes(tm.Minute)];
+  sprite4 = convTable[getTens(tm.Minute)];
   sprite5 = colon;
-  sprite6 = convTable[getOnes(hours)];
-  sprite7 = convTable[getTens(hours)];
+  sprite6 = convTable[getOnes(tm.Hour)];
+  sprite7 = convTable[getTens(tm.Hour)];
 
   displayClock();
 
