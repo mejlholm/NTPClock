@@ -7,8 +7,13 @@
 #include <ezTime.h>
 
 // Replace with your network credentials
-char* ssid     = "";
-char* password = "";
+char* ssid     = "MEJLHOLM";
+char* password = "supahfisk";
+
+bool nightMode = true;
+
+// Setup timezone
+Timezone myTZ;
 
 // Setup led control library
 int displays=4;
@@ -16,10 +21,6 @@ LedControl lc = LedControl(SCK,MISO,MOSI,displays);
 
 const int pixels=8;
 const int onboardLedPin=2;
-
-// Setup timezone
-Timezone myTZ;
-
 
 /* sprites */
 byte n                     = B00000000; //nothing
@@ -79,6 +80,8 @@ void prepareDisplay(int i) {
 void connectWifi() {
   drawWifi();
 
+  for (int i = 0; i < 3; i++)
+
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     drawExclamation();
@@ -91,24 +94,9 @@ void connectTime() {
   drawTime();
 
   myTZ.setLocation("Europe/Copenhagen");
-  setInterval(60);
-
   waitForSync();
-
 }
 
-// general setup
-void setup() {   
-  pinMode(onboardLedPin, OUTPUT);
-
-  delay(2000);
-  for (int i = 0; i < displays; i++) {
-    prepareDisplay(i);
-  }
-
-  connectWifi();
-  connectTime();
-}
 
 // show time
 void drawTime() {
@@ -121,7 +109,19 @@ void drawTime() {
   sprite6 = lt_first;
   sprite7 = blank;
 
-  displayClock();  
+  updateDisplay();  
+}
+
+void drawBlank() {
+  sprite0 = blank;
+  sprite1 = blank;
+  sprite2 = blank;
+  sprite3 = blank;
+  sprite4 = blank;
+  sprite5 = blank;
+  sprite6 = blank;
+  sprite7 = blank;
+  
 }
 
 // show wifi
@@ -135,7 +135,7 @@ void drawWifi() {
   sprite6 = blank;
   sprite7 = blank;
 
-  displayClock();
+  updateDisplay();
 }
 
 // toggle exclamation mark
@@ -149,7 +149,18 @@ void drawExclamation() {
       blinkOnboardLed(HIGH);
     }
     
-    displayClock();  
+    updateDisplay();  
+}
+
+void drawTime(tmElements_t tm) {
+    sprite0 = convTable[getOnes(tm.Second)];
+    sprite1 = convTable[getTens(tm.Second)];
+    sprite2 = colon;
+    sprite3 = convTable[getOnes(tm.Minute)];
+    sprite4 = convTable[getTens(tm.Minute)];
+    sprite5 = colon;
+    sprite6 = convTable[getOnes(tm.Hour)];
+    sprite7 = convTable[getTens(tm.Hour)];    
 }
 
 // flash onboard led
@@ -157,25 +168,6 @@ void blinkOnboardLed(int value) {
     digitalWrite(onboardLedPin, value);
 }
 
-// main loop
-void loop() {
-
-  tmElements_t tm;
-  breakTime(myTZ.now(), tm);
-
-  sprite0 = convTable[getOnes(tm.Second)];
-  sprite1 = convTable[getTens(tm.Second)];
-  sprite2 = colon;
-  sprite3 = convTable[getOnes(tm.Minute)];
-  sprite4 = convTable[getTens(tm.Minute)];
-  sprite5 = colon;
-  sprite6 = convTable[getOnes(tm.Hour)];
-  sprite7 = convTable[getTens(tm.Hour)];
-
-  displayClock();
-
-  delay(200);
-}
 
 // get the tens of timeunit
 int getTens(int timeUnit) {
@@ -188,7 +180,7 @@ int getOnes(int timeUnit) {
 }
 
 // display the sprites that have been setup
-void displayClock() {
+void updateDisplay() {
 
   byte* sprites[8] = {sprite0, sprite1, sprite2, sprite3, sprite4, sprite5, sprite6, sprite7};
   byte* oldSprites[8] = {oldSprite0, oldSprite1, oldSprite2, oldSprite3, oldSprite4, oldSprite5, oldSprite6, oldSprite7};
@@ -231,4 +223,34 @@ void displayClock() {
   oldSprite5 = sprite5;
   oldSprite6 = sprite6;
   oldSprite7 = sprite7;
+}
+
+// general setup
+void setup() {   
+  pinMode(onboardLedPin, OUTPUT);
+
+  delay(2000);
+  for (int i = 0; i < displays; i++) {
+    prepareDisplay(i);
+  }
+
+  connectWifi();
+  connectTime();
+}
+
+// main loop
+void loop() {
+
+  tmElements_t tm;
+  breakTime(myTZ.now(), tm);
+
+  if (nightMode && (tm.Hour < 6 || tm.Hour > 23)) {
+    drawBlank();  
+  } else {
+    drawTime(tm);
+  }
+  
+  updateDisplay();
+
+  delay(200);
 }
