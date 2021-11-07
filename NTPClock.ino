@@ -7,8 +7,8 @@
 #include <ezTime.h>
 
 // Replace with your network credentials
-char* ssid     = "MEJLHOLM";
-char* password = "supahfisk";
+char* ssid     = "";
+char* password = "";
 
 bool nightMode = true;
 
