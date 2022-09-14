@@ -1,0 +1,21 @@
+// Replace with your network credentials
+char* ssid1     = "";
+char* password1 = "";
+char* ssid2     = "";
+char* password2 = "";
+char* ssid3     = "";
+char* password3 = "";
+
+// Setup led control library
+int displays=4;
+
+// pinout mapping connect 3v3, GND plus these ports and initialize the LedControl library
+// matrix ports            DIN,    CLK,   CS
+// wire colour             orange, brown, red
+// esp32 ports             D18,    D23,   D19
+// arduino port names      SCK,    MOSI,  MISO
+int DIN_PORT = SCK;
+int CLK_PORT = MOSI;
+int CS_PORT = MISO;
+
+String location = "Europe/Copenhagen";
