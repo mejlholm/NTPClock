@@ -8,3 +8,9 @@ https://randomnerdtutorials.com/installing-the-esp32-board-in-arduino-ide-mac-an
 
 ## Install libs
 
+
+
+## Fonts 
+The fonts are inspired by the graphics in this video. 
+
+https://cristinastac.wordpress.com/clock-with-8x8-led-dot-matrix-diplay-and-ds3231/
