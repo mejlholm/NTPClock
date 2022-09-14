@@ -18,4 +18,5 @@ int DIN_PORT = SCK;
 int CLK_PORT = MOSI;
 int CS_PORT = MISO;
 
-String location = "Europe/Copenhagen";
+String LOCATION = "Europe/Copenhagen";
+bool COLON_BLINK = true;

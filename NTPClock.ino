@@ -24,8 +24,7 @@ char* passwords[3] = {password1, password2, password3};
 
 /* canvas aka buffer of what to draw */
 int nextRow = 0;
-byte canvas[32];
-
+byte canvas[32] = {n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n};
 
 // wake up displays and clear them
 void prepareDisplay(int i) {
@@ -61,7 +60,7 @@ bool tryWifiConnection(char* ssid, char* password) {
 void connectTime() {
   drawTime();
   
-  myTZ.setLocation(location);
+  myTZ.setLocation(LOCATION);
   waitForSync();
 }
 
@@ -90,22 +89,17 @@ void addToCanvas(int size, byte* sprite) {
   nextRow++;
 }
 
+void drawDisplay(int display, int offset) {
+  for (int idx = 0; idx < 8; idx++) {
+    lc.setColumn(display, idx, canvas[offset + idx]);
+  }  
+}
+
 void drawCanvas() {
-  for (int idx = 0; idx < 8; idx++) {
-    lc.setColumn(3, idx, canvas[idx]);  
-  }
-
-  for (int idx = 0; idx < 8; idx++) {
-    lc.setColumn(2, idx, canvas[8 + idx]);  
-  }
-
-  for (int idx = 0; idx < 8; idx++) {
-    lc.setColumn(1, idx, canvas[16 + idx]);  
-  }
-
-  for (int idx = 0; idx < 8; idx++) {
-    lc.setColumn(0, idx, canvas[24 + idx]);  
-  }
+  drawDisplay(3, 0);
+  drawDisplay(2, 8);
+  drawDisplay(1, 16);
+  drawDisplay(0, 24);
 
   //reset display
   nextRow = 0;
@@ -128,7 +122,7 @@ void drawCurrentTime(){
   addToCanvas(6, convTable[getTens(tm.Hour)]);
   addToCanvas(6, convTable[getOnes(tm.Hour)]);
 
-  if (tm.Second % 2 == 1) {
+  if (!COLON_BLINK || tm.Second % 2 == 1) {
     addToCanvas(2, sprite_colon);  
   } else {
     addToCanvas(2, sprite_blank);  
