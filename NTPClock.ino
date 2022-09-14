@@ -111,9 +111,11 @@ void drawCanvas() {
   nextRow = 0;
 }
 
-void indent() {
-  canvas[nextRow] = n;
-  nextRow = 1;
+void indent(int level) {
+  for (int i = 0; i < level; i++) {
+    canvas[nextRow + i] = n;
+  }
+  nextRow = level;
 }
 
 void drawCurrentTime(){
@@ -121,7 +123,7 @@ void drawCurrentTime(){
   breakTime(myTZ.now(), tm);
 
   //indent to center on the display
-  indent();
+  indent(1);
 
   addToCanvas(6, convTable[getTens(tm.Hour)]);
   addToCanvas(6, convTable[getOnes(tm.Hour)]);
@@ -139,6 +141,8 @@ void drawCurrentTime(){
 }
 
 void drawWifi(){
+  indent(4);
+
   addToCanvas(7, sprite_w);  
   addToCanvas(4, sprite_i);  
   addToCanvas(6, sprite_f);  
@@ -148,6 +152,8 @@ void drawWifi(){
 }
 
 void drawTime(){
+  indent(3);
+
   addToCanvas(6, sprite_t);  
   addToCanvas(4, sprite_i);  
   addToCanvas(7, sprite_m);  
